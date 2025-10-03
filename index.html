@@ -18,7 +18,7 @@
             min-height: 100vh;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         .header {
@@ -33,73 +33,45 @@
             font-size: 28px;
             margin-bottom: 8px;
         }
-        .header p {
-            color: #9ca3af;
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .stat-card {
-            background: #1f2937;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .stat-card .number {
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-        .stat-card .label {
-            color: #9ca3af;
-            font-size: 14px;
-        }
-        .controls {
-            background: #1f2937;
-            padding: 24px;
-            border-radius: 12px;
-            margin-bottom: 24px;
-        }
-        .search-bar {
-            width: 100%;
-            padding: 12px 16px;
-            background: #374151;
-            border: 1px solid #4b5563;
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-            margin-bottom: 16px;
-        }
-        .filters {
+        .tabs {
             display: flex;
+            gap: 8px;
+            margin-top: 16px;
             flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 16px;
         }
-        select, button {
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: none;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: inherit;
-        }
-        select {
+        .tab {
+            padding: 10px 20px;
             background: #374151;
-            color: white;
-            border: 1px solid #4b5563;
+            border: none;
+            border-radius: 8px;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            background: #34d399;
+            color: #111827;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             padding: 10px 20px;
             border-radius: 8px;
             font-weight: 500;
             transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
         }
         .btn-primary { background: #059669; color: white; }
         .btn-primary:hover { background: #047857; }
@@ -107,37 +79,30 @@
         .btn-secondary:hover { background: #2563eb; }
         .btn-danger { background: #dc2626; color: white; }
         .btn-danger:hover { background: #b91c1c; }
-        .btn-purple { background: #7c3aed; color: white; }
-        .btn-purple:hover { background: #6d28d9; }
         .btn-gray { background: #4b5563; color: white; }
         .btn-gray:hover { background: #374151; }
-        .person-card {
+        .card {
             background: #1f2937;
             padding: 20px;
             border-radius: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .person-header {
+        .person-card {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             flex-wrap: wrap;
             gap: 12px;
         }
-        .person-info {
-            flex: 1;
-            min-width: 250px;
-        }
         .person-name {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: #34d399;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
+        }
+        .person-rank {
+            color: #9ca3af;
+            font-size: 14px;
         }
         .badge {
             padding: 4px 10px;
@@ -145,77 +110,145 @@
             font-size: 11px;
             font-weight: bold;
             text-transform: uppercase;
+            display: inline-block;
+            margin-left: 8px;
         }
-        .badge-job { background: #d97706; }
-        .badge-present { background: #059669; }
-        .badge-appointment { background: #3b82f6; }
-        .badge-leave { background: #7c3aed; }
-        .badge-absent { background: #dc2626; }
-        .person-detail {
-            color: #d1d5db;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-        .person-detail span {
-            color: #9ca3af;
-        }
-        .person-actions {
-            display: flex;
-            gap: 8px;
-        }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        input[type="text"], input[type="checkbox"] {
+        .badge-job { background: #d97706; color: white; }
+        .badge-profile { background: #7c3aed; color: white; }
+        input[type="text"], input[type="date"], select, textarea {
+            width: 100%;
             padding: 10px;
             background: #374151;
             border: 1px solid #4b5563;
             border-radius: 6px;
             color: white;
             font-size: 14px;
+            margin-bottom: 12px;
         }
         input[type="checkbox"] {
             width: 20px;
             height: 20px;
             cursor: pointer;
         }
-        .checkbox-label {
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #d1d5db;
+            font-size: 14px;
+        }
+        .checkbox-group {
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .add-form {
-            background: #374151;
-            padding: 20px;
-            border-radius: 12px;
+        .formation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
             margin-bottom: 24px;
-            border: 2px solid #34d399;
         }
-        .add-form h3 {
+        .formation-card {
+            background: #374151;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        .formation-title {
+            font-size: 20px;
+            font-weight: bold;
             color: #34d399;
+            margin-bottom: 12px;
+        }
+        .formation-date {
+            color: #9ca3af;
+            font-size: 14px;
             margin-bottom: 16px;
         }
-        .empty-state {
+        .absence-list {
+            list-style: none;
+        }
+        .absence-item {
             background: #1f2937;
-            padding: 60px;
-            border-radius: 12px;
-            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid #dc2626;
+        }
+        .absence-name {
+            font-weight: bold;
+            color: #f3f4f6;
+            margin-bottom: 4px;
+        }
+        .absence-reason {
             color: #9ca3af;
+            font-size: 13px;
+        }
+        .present-count {
+            background: #059669;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+        .future-absences {
+            margin-top: 24px;
+        }
+        .future-absence-card {
+            background: #374151;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid #f59e0b;
+        }
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
         }
         @media (max-width: 768px) {
-            .person-actions {
-                width: 100%;
-                justify-content: flex-start;
-            }
-            .filters {
+            .controls {
                 flex-direction: column;
             }
-            select, .btn {
+            .btn {
                 width: 100%;
             }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: #1f2937;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #34d399;
+            margin-bottom: 16px;
         }
         .hidden {
             display: none;
@@ -226,240 +259,426 @@
     <div class="container">
         <div class="header">
             <h1>Med Hold Accountability</h1>
-            <p>Personnel Tracking System</p>
-        </div>
-
-        <div class="stats">
-            <div class="stat-card">
-                <div class="number" style="color: #3b82f6;" id="stat-total">0</div>
-                <div class="label">Total Personnel</div>
-            </div>
-            <div class="stat-card">
-                <div class="number" style="color: #34d399;" id="stat-present">0</div>
-                <div class="label">Present</div>
-            </div>
-            <div class="stat-card">
-                <div class="number" style="color: #fbbf24;" id="stat-jobs">0</div>
-                <div class="label">With Jobs</div>
-            </div>
-            <div class="stat-card">
-                <div class="number" style="color: #a78bfa;" id="stat-appointments">0</div>
-                <div class="label">Appointments</div>
+            <p style="color: #9ca3af;">Personnel Tracking System</p>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('roster')">Personnel Roster</button>
+                <button class="tab" onclick="switchTab('today')">Today's Formations</button>
+                <button class="tab" onclick="switchTab('future')">Future Absences</button>
+                <button class="tab" onclick="switchTab('self')">Self-Report Absence</button>
             </div>
         </div>
 
-        <div class="controls">
-            <input type="text" id="search" class="search-bar" placeholder="Search by name or rank...">
-            
-            <div class="filters">
-                <select id="filter-job">
-                    <option value="all">All Jobs</option>
-                    <option value="job">Has Job</option>
-                    <option value="nojob">No Job</option>
-                </select>
-                <select id="filter-status">
-                    <option value="all">All Status</option>
-                    <option value="present">Present</option>
-                    <option value="appointment">At Appointment</option>
-                    <option value="leave">On Leave</option>
-                    <option value="absent">Absent</option>
-                </select>
-            </div>
-
-            <div class="filters">
-                <button class="btn btn-primary" onclick="showAddForm()">➕ Add Person</button>
-                <button class="btn btn-secondary" onclick="exportData()">⬇️ Export</button>
-                <label class="btn btn-purple" style="margin: 0;">
-                    ⬆️ Import
-                    <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
-                </label>
+        <!-- ROSTER TAB -->
+        <div id="roster-tab" class="tab-content active">
+            <div class="card">
+                <h2 style="color: #34d399; margin-bottom: 16px;">Platoon Roster</h2>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="showAddPersonModal()">➕ Add Person</button>
+                    <button class="btn btn-secondary" onclick="exportData()">⬇️ Export Data</button>
+                    <label class="btn btn-secondary" style="margin: 0;">
+                        ⬆️ Import Data
+                        <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
+                    </label>
+                </div>
+                <div id="roster-list"></div>
             </div>
         </div>
 
-        <div id="add-form-container" class="add-form hidden">
-            <h3>Add New Person</h3>
-            <div class="form-grid">
-                <input type="text" id="new-name" placeholder="Name">
-                <input type="text" id="new-rank" placeholder="Rank">
-                <input type="text" id="new-profile" placeholder="Profile (e.g., Temp - No Lifting)">
-                <input type="text" id="new-appointments" placeholder="Appointments (e.g., PT @ 1400)">
-                <select id="new-status">
-                    <option value="present">Present</option>
-                    <option value="appointment">At Appointment</option>
-                    <option value="leave">On Leave</option>
-                    <option value="absent">Absent</option>
-                </select>
-                <label class="checkbox-label">
+        <!-- TODAY'S FORMATIONS TAB -->
+        <div id="today-tab" class="tab-content">
+            <div class="card">
+                <h2 style="color: #34d399; margin-bottom: 16px;">Today's Formations</h2>
+                <p style="color: #9ca3af; margin-bottom: 24px;" id="today-date"></p>
+                <div class="formation-grid" id="formations-today"></div>
+            </div>
+        </div>
+
+        <!-- FUTURE ABSENCES TAB -->
+        <div id="future-tab" class="tab-content">
+            <div class="card">
+                <h2 style="color: #34d399; margin-bottom: 16px;">Scheduled Future Absences</h2>
+                <div id="future-absences-list"></div>
+            </div>
+        </div>
+
+        <!-- SELF-REPORT TAB -->
+        <div id="self-tab" class="tab-content">
+            <div class="card">
+                <h2 style="color: #34d399; margin-bottom: 24px;">Report Your Absence</h2>
+                
+                <div class="form-group">
+                    <label>Select Your Name</label>
+                    <select id="self-name"></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Date of Absence</label>
+                    <input type="date" id="self-date">
+                </div>
+
+                <div class="form-group">
+                    <label>Formation(s) You'll Miss</label>
+                    <div class="checkbox-group" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="self-0800" value="0800">
+                            <span>0800 Formation</span>
+                        </label>
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="self-1100" value="1100">
+                            <span>1100 Formation</span>
+                        </label>
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="self-1400" value="1400">
+                            <span>1400 Formation</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Reason for Absence</label>
+                    <select id="self-reason">
+                        <option value="Medical Appointment">Medical Appointment</option>
+                        <option value="Physical Therapy">Physical Therapy</option>
+                        <option value="Mental Health Appointment">Mental Health Appointment</option>
+                        <option value="Leave">Leave</option>
+                        <option value="Pass">Pass</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Details (Optional)</label>
+                    <textarea id="self-notes" rows="3" placeholder="Any additional information..."></textarea>
+                </div>
+
+                <button class="btn btn-primary" onclick="submitSelfReport()" style="width: 100%;">Submit Absence Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD PERSON MODAL -->
+    <div id="add-person-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Add New Person</h3>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="new-name">
+            </div>
+            <div class="form-group">
+                <label>Rank</label>
+                <input type="text" id="new-rank">
+            </div>
+            <div class="form-group">
+                <label class="checkbox-group">
                     <input type="checkbox" id="new-job">
                     <span>Has Job</span>
                 </label>
-                <input type="text" id="new-notes" placeholder="Notes" style="grid-column: 1 / -1;">
             </div>
-            <div style="display: flex; gap: 12px;">
+            <div class="form-group">
+                <label>Profile (Optional)</label>
+                <input type="text" id="new-profile" placeholder="e.g., Permanent - No Running">
+            </div>
+            <div class="controls">
                 <button class="btn btn-primary" onclick="addPerson()">Add</button>
-                <button class="btn btn-gray" onclick="hideAddForm()">Cancel</button>
+                <button class="btn btn-gray" onclick="closeModal('add-person-modal')">Cancel</button>
             </div>
         </div>
+    </div>
 
-        <div id="personnel-list"></div>
+    <!-- EDIT PERSON MODAL -->
+    <div id="edit-person-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Edit Person</h3>
+            <input type="hidden" id="edit-id">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="edit-name">
+            </div>
+            <div class="form-group">
+                <label>Rank</label>
+                <input type="text" id="edit-rank">
+            </div>
+            <div class="form-group">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="edit-job">
+                    <span>Has Job</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label>Profile (Optional)</label>
+                <input type="text" id="edit-profile">
+            </div>
+            <div class="controls">
+                <button class="btn btn-primary" onclick="savePerson()">Save</button>
+                <button class="btn btn-gray" onclick="closeModal('edit-person-modal')">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        let personnel = [
-            { id: 1, name: 'Sample Soldier', rank: 'SPC', hasJob: true, profile: 'Permanent - No Running', appointments: 'PT @ 0900 Mon', status: 'present', notes: 'Example entry' }
-        ];
-        let editingId = null;
+        let personnel = [];
+        let absences = [];
 
-        function render() {
-            const search = document.getElementById('search').value.toLowerCase();
-            const filterJob = document.getElementById('filter-job').value;
-            const filterStatus = document.getElementById('filter-status').value;
+        const formations = ['0800', '1100', '1400'];
 
-            const filtered = personnel.filter(p => {
-                const matchesSearch = p.name.toLowerCase().includes(search) || p.rank.toLowerCase().includes(search);
-                const matchesJob = filterJob === 'all' || (filterJob === 'job' && p.hasJob) || (filterJob === 'nojob' && !p.hasJob);
-                const matchesStatus = filterStatus === 'all' || p.status === filterStatus;
-                return matchesSearch && matchesJob && matchesStatus;
-            });
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+            
+            if (tab === 'today') renderTodayFormations();
+            if (tab === 'future') renderFutureAbsences();
+            if (tab === 'self') populateSelfReportNames();
+        }
 
-            // Update stats
-            document.getElementById('stat-total').textContent = personnel.length;
-            document.getElementById('stat-present').textContent = personnel.filter(p => p.status === 'present').length;
-            document.getElementById('stat-jobs').textContent = personnel.filter(p => p.hasJob).length;
-            document.getElementById('stat-appointments').textContent = personnel.filter(p => p.appointments.trim()).length;
-
-            // Render list
-            const list = document.getElementById('personnel-list');
-            if (filtered.length === 0) {
-                list.innerHTML = '<div class="empty-state">No personnel found matching your filters.</div>';
+        function renderRoster() {
+            const list = document.getElementById('roster-list');
+            if (personnel.length === 0) {
+                list.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 40px;">No personnel added yet.</p>';
                 return;
             }
 
-            list.innerHTML = filtered.map(p => {
-                if (editingId === p.id) {
-                    return `
-                        <div class="person-card">
-                            <div class="form-grid">
-                                <input type="text" id="edit-name" value="${p.name}">
-                                <input type="text" id="edit-rank" value="${p.rank}">
-                                <input type="text" id="edit-profile" value="${p.profile}">
-                                <input type="text" id="edit-appointments" value="${p.appointments}">
-                                <select id="edit-status">
-                                    <option value="present" ${p.status === 'present' ? 'selected' : ''}>Present</option>
-                                    <option value="appointment" ${p.status === 'appointment' ? 'selected' : ''}>At Appointment</option>
-                                    <option value="leave" ${p.status === 'leave' ? 'selected' : ''}>On Leave</option>
-                                    <option value="absent" ${p.status === 'absent' ? 'selected' : ''}>Absent</option>
-                                </select>
-                                <label class="checkbox-label">
-                                    <input type="checkbox" id="edit-job" ${p.hasJob ? 'checked' : ''}>
-                                    <span>Has Job</span>
-                                </label>
-                                <input type="text" id="edit-notes" value="${p.notes}" placeholder="Notes" style="grid-column: 1 / -1;">
-                            </div>
-                            <div style="display: flex; gap: 12px; margin-top: 12px;">
-                                <button class="btn btn-primary" onclick="saveEdit(${p.id})">💾 Save</button>
-                                <button class="btn btn-gray" onclick="cancelEdit()">✖️ Cancel</button>
-                            </div>
+            list.innerHTML = personnel.map(p => `
+                <div class="card person-card">
+                    <div>
+                        <div class="person-name">
+                            ${p.rank} ${p.name}
+                            ${p.hasJob ? '<span class="badge badge-job">HAS JOB</span>' : ''}
                         </div>
-                    `;
-                }
+                        ${p.profile ? `<div class="person-rank">Profile: ${p.profile}</div>` : ''}
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="showEditPersonModal(${p.id})">✏️ Edit</button>
+                        <button class="btn btn-danger" onclick="deletePerson(${p.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-                const statusClass = {
-                    present: 'badge-present',
-                    appointment: 'badge-appointment',
-                    leave: 'badge-leave',
-                    absent: 'badge-absent'
-                }[p.status];
+        function renderTodayFormations() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            const container = document.getElementById('formations-today');
+            container.innerHTML = formations.map(time => {
+                const todayAbsences = absences.filter(a => a.date === today && a.formations.includes(time));
+                const presentCount = personnel.length - todayAbsences.length;
 
                 return `
-                    <div class="person-card">
-                        <div class="person-header">
-                            <div class="person-info">
-                                <div class="person-name">
-                                    ${p.rank} ${p.name}
-                                    ${p.hasJob ? '<span class="badge badge-job">JOB</span>' : ''}
-                                    <span class="badge ${statusClass}">${p.status}</span>
-                                </div>
-                                ${p.profile ? `<div class="person-detail"><span>Profile:</span> ${p.profile}</div>` : ''}
-                                ${p.appointments ? `<div class="person-detail"><span>Appointments:</span> ${p.appointments}</div>` : ''}
-                                ${p.notes ? `<div class="person-detail"><span>Notes:</span> ${p.notes}</div>` : ''}
-                            </div>
-                            <div class="person-actions">
-                                <button class="btn btn-secondary" onclick="startEdit(${p.id})">✏️ Edit</button>
-                                <button class="btn btn-danger" onclick="deletePerson(${p.id})">✖️</button>
-                            </div>
-                        </div>
+                    <div class="formation-card">
+                        <div class="formation-title">${time} Formation</div>
+                        <div class="formation-date">Present: ${presentCount} / ${personnel.length}</div>
+                        ${todayAbsences.length > 0 ? `
+                            <ul class="absence-list">
+                                ${todayAbsences.map(a => {
+                                    const person = personnel.find(p => p.id === a.personId);
+                                    return `
+                                        <li class="absence-item">
+                                            <div class="absence-name">${person ? person.rank + ' ' + person.name : 'Unknown'}</div>
+                                            <div class="absence-reason">${a.reason}</div>
+                                            ${a.notes ? `<div class="absence-reason" style="margin-top: 4px; font-style: italic;">${a.notes}</div>` : ''}
+                                            <button class="btn btn-danger" onclick="deleteAbsence(${a.id})" style="margin-top: 8px; padding: 6px 12px; font-size: 12px;">Remove</button>
+                                        </li>
+                                    `;
+                                }).join('')}
+                            </ul>
+                        ` : '<p style="color: #9ca3af; font-size: 14px;">No absences reported</p>'}
                     </div>
                 `;
             }).join('');
         }
 
-        function showAddForm() {
-            document.getElementById('add-form-container').classList.remove('hidden');
+        function renderFutureAbsences() {
+            const today = new Date().toISOString().split('T')[0];
+            const futureAbsences = absences.filter(a => a.date > today).sort((a, b) => a.date.localeCompare(b.date));
+
+            const container = document.getElementById('future-absences-list');
+            if (futureAbsences.length === 0) {
+                container.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 40px;">No future absences scheduled.</p>';
+                return;
+            }
+
+            const grouped = {};
+            futureAbsences.forEach(a => {
+                if (!grouped[a.date]) grouped[a.date] = [];
+                grouped[a.date].push(a);
+            });
+
+            container.innerHTML = Object.keys(grouped).map(date => {
+                const dateObj = new Date(date + 'T00:00:00');
+                const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                
+                return `
+                    <div class="card">
+                        <h3 style="color: #34d399; margin-bottom: 16px;">${dateStr}</h3>
+                        ${grouped[date].map(a => {
+                            const person = personnel.find(p => p.id === a.personId);
+                            return `
+                                <div class="future-absence-card">
+                                    <div class="absence-name">${person ? person.rank + ' ' + person.name : 'Unknown'}</div>
+                                    <div class="absence-reason">Formations: ${a.formations.join(', ')}</div>
+                                    <div class="absence-reason">Reason: ${a.reason}</div>
+                                    ${a.notes ? `<div class="absence-reason" style="margin-top: 4px; font-style: italic;">${a.notes}</div>` : ''}
+                                    <button class="btn btn-danger" onclick="deleteAbsence(${a.id})" style="margin-top: 8px; padding: 6px 12px; font-size: 12px;">Remove</button>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }).join('');
         }
 
-        function hideAddForm() {
-            document.getElementById('add-form-container').classList.add('hidden');
-            document.getElementById('new-name').value = '';
-            document.getElementById('new-rank').value = '';
-            document.getElementById('new-profile').value = '';
-            document.getElementById('new-appointments').value = '';
-            document.getElementById('new-status').value = 'present';
-            document.getElementById('new-job').checked = false;
-            document.getElementById('new-notes').value = '';
+        function populateSelfReportNames() {
+            const select = document.getElementById('self-name');
+            select.innerHTML = '<option value="">-- Select Your Name --</option>' + 
+                personnel.map(p => `<option value="${p.id}">${p.rank} ${p.name}</option>`).join('');
+        }
+
+        function submitSelfReport() {
+            const personId = parseInt(document.getElementById('self-name').value);
+            const date = document.getElementById('self-date').value;
+            const reason = document.getElementById('self-reason').value;
+            const notes = document.getElementById('self-notes').value;
+
+            const selectedFormations = [];
+            if (document.getElementById('self-0800').checked) selectedFormations.push('0800');
+            if (document.getElementById('self-1100').checked) selectedFormations.push('1100');
+            if (document.getElementById('self-1400').checked) selectedFormations.push('1400');
+
+            if (!personId || !date || selectedFormations.length === 0) {
+                alert('Please fill out all required fields.');
+                return;
+            }
+
+            const newId = absences.length > 0 ? Math.max(...absences.map(a => a.id)) + 1 : 1;
+            absences.push({
+                id: newId,
+                personId: personId,
+                date: date,
+                formations: selectedFormations,
+                reason: reason,
+                notes: notes
+            });
+
+            saveData();
+            alert('Absence reported successfully!');
+            
+            // Clear form
+            document.getElementById('self-name').value = '';
+            document.getElementById('self-date').value = '';
+            document.getElementById('self-0800').checked = false;
+            document.getElementById('self-1100').checked = false;
+            document.getElementById('self-1400').checked = false;
+            document.getElementById('self-reason').value = 'Medical Appointment';
+            document.getElementById('self-notes').value = '';
+        }
+
+        function showAddPersonModal() {
+            document.getElementById('add-person-modal').classList.add('active');
+        }
+
+        function showEditPersonModal(id) {
+            const person = personnel.find(p => p.id === id);
+            document.getElementById('edit-id').value = person.id;
+            document.getElementById('edit-name').value = person.name;
+            document.getElementById('edit-rank').value = person.rank;
+            document.getElementById('edit-job').checked = person.hasJob;
+            document.getElementById('edit-profile').value = person.profile || '';
+            document.getElementById('edit-person-modal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
         }
 
         function addPerson() {
-            const newId = Math.max(...personnel.map(p => p.id), 0) + 1;
+            const name = document.getElementById('new-name').value;
+            const rank = document.getElementById('new-rank').value;
+            
+            if (!name || !rank) {
+                alert('Please enter name and rank.');
+                return;
+            }
+
+            const newId = personnel.length > 0 ? Math.max(...personnel.map(p => p.id)) + 1 : 1;
             personnel.push({
                 id: newId,
-                name: document.getElementById('new-name').value,
-                rank: document.getElementById('new-rank').value,
+                name: name,
+                rank: rank,
                 hasJob: document.getElementById('new-job').checked,
-                profile: document.getElementById('new-profile').value,
-                appointments: document.getElementById('new-appointments').value,
-                status: document.getElementById('new-status').value,
-                notes: document.getElementById('new-notes').value
+                profile: document.getElementById('new-profile').value
             });
-            hideAddForm();
-            render();
+
+            saveData();
+            renderRoster();
+            closeModal('add-person-modal');
+            
+            // Clear form
+            document.getElementById('new-name').value = '';
+            document.getElementById('new-rank').value = '';
+            document.getElementById('new-job').checked = false;
+            document.getElementById('new-profile').value = '';
         }
 
-        function startEdit(id) {
-            editingId = id;
-            render();
-        }
-
-        function saveEdit(id) {
+        function savePerson() {
+            const id = parseInt(document.getElementById('edit-id').value);
             const index = personnel.findIndex(p => p.id === id);
+            
             personnel[index] = {
                 id: id,
                 name: document.getElementById('edit-name').value,
                 rank: document.getElementById('edit-rank').value,
-                profile: document.getElementById('edit-profile').value,
-                appointments: document.getElementById('edit-appointments').value,
-                status: document.getElementById('edit-status').value,
                 hasJob: document.getElementById('edit-job').checked,
-                notes: document.getElementById('edit-notes').value
+                profile: document.getElementById('edit-profile').value
             };
-            editingId = null;
-            render();
-        }
 
-        function cancelEdit() {
-            editingId = null;
-            render();
+            saveData();
+            renderRoster();
+            closeModal('edit-person-modal');
         }
 
         function deletePerson(id) {
-            if (confirm('Remove this person from the roster?')) {
+            if (confirm('Remove this person from the roster? This will also delete their absence reports.')) {
                 personnel = personnel.filter(p => p.id !== id);
-                render();
+                absences = absences.filter(a => a.personId !== id);
+                saveData();
+                renderRoster();
+            }
+        }
+
+        function deleteAbsence(id) {
+            if (confirm('Remove this absence report?')) {
+                absences = absences.filter(a => a.id !== id);
+                saveData();
+                renderTodayFormations();
+                renderFutureAbsences();
+            }
+        }
+
+        function saveData() {
+            const data = { personnel, absences };
+            localStorage.setItem('accountabilityData', JSON.stringify(data));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('accountabilityData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                personnel = data.personnel || [];
+                absences = data.absences || [];
             }
         }
 
         function exportData() {
-            const dataStr = JSON.stringify(personnel, null, 2);
+            const data = { personnel, absences };
+            const dataStr = JSON.stringify(data, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -474,8 +693,11 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     try {
-                        personnel = JSON.parse(e.target.result);
-                        render();
+                        const data = JSON.parse(e.target.result);
+                        personnel = data.personnel || [];
+                        absences = data.absences || [];
+                        saveData();
+                        renderRoster();
                         alert('Data imported successfully!');
                     } catch (err) {
                         alert('Error importing file. Please make sure it\'s a valid JSON file.');
@@ -485,13 +707,12 @@
             }
         }
 
-        // Event listeners
-        document.getElementById('search').addEventListener('input', render);
-        document.getElementById('filter-job').addEventListener('change', render);
-        document.getElementById('filter-status').addEventListener('change', render);
-
-        // Initial render
-        render();
+        // Initialize
+        loadData();
+        renderRoster();
+        
+        // Set default date to today for self-report
+        document.getElementById('self-date').valueAsDate = new Date();
     </script>
 </body>
 </html>
