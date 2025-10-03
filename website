@@ -1,0 +1,386 @@
+import React, { useState, useMemo } from 'react';
+import { Search, Plus, Edit2, Save, X, Filter, Download, Upload } from 'lucide-react';
+
+export default function AccountabilityTracker() {
+  const [personnel, setPersonnel] = useState([
+    { id: 1, name: 'Sample Soldier', rank: 'SPC', hasJob: true, profile: 'Permanent - No Running', appointments: 'PT @ 0900 Mon', status: 'present', notes: '' }
+  ]);
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterJob, setFilterJob] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newPerson, setNewPerson] = useState({
+    name: '', rank: '', hasJob: false, profile: '', appointments: '', status: 'present', notes: ''
+  });
+
+  const filteredPersonnel = useMemo(() => {
+    return personnel.filter(p => {
+      const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           p.rank.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesJob = filterJob === 'all' || 
+                        (filterJob === 'job' && p.hasJob) || 
+                        (filterJob === 'nojob' && !p.hasJob);
+      const matchesStatus = filterStatus === 'all' || p.status === filterStatus;
+      return matchesSearch && matchesJob && matchesStatus;
+    });
+  }, [personnel, searchTerm, filterJob, filterStatus]);
+
+  const handleEdit = (person) => {
+    setEditingId(person.id);
+    setEditForm({ ...person });
+  };
+
+  const handleSave = () => {
+    setPersonnel(personnel.map(p => p.id === editingId ? editForm : p));
+    setEditingId(null);
+  };
+
+  const handleAdd = () => {
+    const newId = Math.max(...personnel.map(p => p.id), 0) + 1;
+    setPersonnel([...personnel, { ...newPerson, id: newId }]);
+    setNewPerson({ name: '', rank: '', hasJob: false, profile: '', appointments: '', status: 'present', notes: '' });
+    setShowAddForm(false);
+  };
+
+  const handleDelete = (id) => {
+    if (confirm('Remove this person from the roster?')) {
+      setPersonnel(personnel.filter(p => p.id !== id));
+    }
+  };
+
+  const exportData = () => {
+    const dataStr = JSON.stringify(personnel, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `accountability_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+  };
+
+  const importData = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          setPersonnel(imported);
+          alert('Data imported successfully!');
+        } catch (err) {
+          alert('Error importing file. Please make sure it\'s a valid JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const stats = {
+    total: personnel.length,
+    present: personnel.filter(p => p.status === 'present').length,
+    withJobs: personnel.filter(p => p.hasJob).length,
+    appointments: personnel.filter(p => p.appointments.trim()).length
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-gray-100 p-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-gray-800 rounded-lg shadow-xl p-6 mb-6">
+          <h1 className="text-3xl font-bold text-green-400 mb-2">Med Hold Accountability</h1>
+          <p className="text-gray-400">Personnel Tracking System</p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-gray-800 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-blue-400">{stats.total}</div>
+            <div className="text-sm text-gray-400">Total Personnel</div>
+          </div>
+          <div className="bg-gray-800 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-green-400">{stats.present}</div>
+            <div className="text-sm text-gray-400">Present</div>
+          </div>
+          <div className="bg-gray-800 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-yellow-400">{stats.withJobs}</div>
+            <div className="text-sm text-gray-400">With Jobs</div>
+          </div>
+          <div className="bg-gray-800 p-4 rounded-lg">
+            <div className="text-2xl font-bold text-purple-400">{stats.appointments}</div>
+            <div className="text-sm text-gray-400">Appointments Today</div>
+          </div>
+        </div>
+
+        <div className="bg-gray-800 rounded-lg shadow-xl p-6 mb-6">
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search by name or rank..."
+                className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <select
+              className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+              value={filterJob}
+              onChange={(e) => setFilterJob(e.target.value)}
+            >
+              <option value="all">All Jobs</option>
+              <option value="job">Has Job</option>
+              <option value="nojob">No Job</option>
+            </select>
+            <select
+              className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="all">All Status</option>
+              <option value="present">Present</option>
+              <option value="appointment">At Appointment</option>
+              <option value="leave">On Leave</option>
+              <option value="absent">Absent</option>
+            </select>
+          </div>
+
+          <div className="flex flex-wrap gap-2 mb-4">
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition"
+            >
+              <Plus size={20} />
+              Add Person
+            </button>
+            <button
+              onClick={exportData}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+            >
+              <Download size={20} />
+              Export
+            </button>
+            <label className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition cursor-pointer">
+              <Upload size={20} />
+              Import
+              <input type="file" accept=".json" onChange={importData} className="hidden" />
+            </label>
+          </div>
+
+          {showAddForm && (
+            <div className="bg-gray-700 p-4 rounded-lg mb-4 border border-green-500">
+              <h3 className="text-lg font-bold mb-3 text-green-400">Add New Person</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  placeholder="Name"
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                  value={newPerson.name}
+                  onChange={(e) => setNewPerson({ ...newPerson, name: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Rank"
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                  value={newPerson.rank}
+                  onChange={(e) => setNewPerson({ ...newPerson, rank: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Profile (e.g., Temp - No Lifting)"
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                  value={newPerson.profile}
+                  onChange={(e) => setNewPerson({ ...newPerson, profile: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Appointments (e.g., PT @ 1400)"
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                  value={newPerson.appointments}
+                  onChange={(e) => setNewPerson({ ...newPerson, appointments: e.target.value })}
+                />
+                <select
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                  value={newPerson.status}
+                  onChange={(e) => setNewPerson({ ...newPerson, status: e.target.value })}
+                >
+                  <option value="present">Present</option>
+                  <option value="appointment">At Appointment</option>
+                  <option value="leave">On Leave</option>
+                  <option value="absent">Absent</option>
+                </select>
+                <label className="flex items-center gap-2 text-white">
+                  <input
+                    type="checkbox"
+                    checked={newPerson.hasJob}
+                    onChange={(e) => setNewPerson({ ...newPerson, hasJob: e.target.checked })}
+                    className="w-4 h-4"
+                  />
+                  Has Job
+                </label>
+                <input
+                  type="text"
+                  placeholder="Notes"
+                  className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white md:col-span-2"
+                  value={newPerson.notes}
+                  onChange={(e) => setNewPerson({ ...newPerson, notes: e.target.value })}
+                />
+              </div>
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={handleAdd}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded transition"
+                >
+                  Add
+                </button>
+                <button
+                  onClick={() => setShowAddForm(false)}
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-3">
+          {filteredPersonnel.map(person => (
+            <div key={person.id} className="bg-gray-800 rounded-lg p-4 shadow-lg">
+              {editingId === person.id ? (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    />
+                    <input
+                      type="text"
+                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                      value={editForm.rank}
+                      onChange={(e) => setEditForm({ ...editForm, rank: e.target.value })}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Profile"
+                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                      value={editForm.profile}
+                      onChange={(e) => setEditForm({ ...editForm, profile: e.target.value })}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Appointments"
+                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                      value={editForm.appointments}
+                      onChange={(e) => setEditForm({ ...editForm, appointments: e.target.value })}
+                    />
+                    <select
+                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                      value={editForm.status}
+                      onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                    >
+                      <option value="present">Present</option>
+                      <option value="appointment">At Appointment</option>
+                      <option value="leave">On Leave</option>
+                      <option value="absent">Absent</option>
+                    </select>
+                    <label className="flex items-center gap-2 text-white">
+                      <input
+                        type="checkbox"
+                        checked={editForm.hasJob}
+                        onChange={(e) => setEditForm({ ...editForm, hasJob: e.target.checked })}
+                        className="w-4 h-4"
+                      />
+                      Has Job
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Notes"
+                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white md:col-span-2"
+                      value={editForm.notes}
+                      onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSave}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded transition"
+                    >
+                      <Save size={16} />
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded transition"
+                    >
+                      <X size={16} />
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-bold text-lg text-green-400">{person.rank} {person.name}</span>
+                      {person.hasJob && (
+                        <span className="px-2 py-1 bg-yellow-600 text-xs rounded">JOB</span>
+                      )}
+                      <span className={`px-2 py-1 text-xs rounded ${
+                        person.status === 'present' ? 'bg-green-600' :
+                        person.status === 'appointment' ? 'bg-blue-600' :
+                        person.status === 'leave' ? 'bg-purple-600' : 'bg-red-600'
+                      }`}>
+                        {person.status.toUpperCase()}
+                      </span>
+                    </div>
+                    {person.profile && (
+                      <div className="text-sm text-gray-300 mb-1">
+                        <span className="text-gray-500">Profile:</span> {person.profile}
+                      </div>
+                    )}
+                    {person.appointments && (
+                      <div className="text-sm text-gray-300 mb-1">
+                        <span className="text-gray-500">Appointments:</span> {person.appointments}
+                      </div>
+                    )}
+                    {person.notes && (
+                      <div className="text-sm text-gray-400">
+                        <span className="text-gray-500">Notes:</span> {person.notes}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEdit(person)}
+                      className="flex items-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded transition text-sm"
+                    >
+                      <Edit2 size={16} />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(person.id)}
+                      className="flex items-center gap-1 px-3 py-2 bg-red-600 hover:bg-red-700 rounded transition text-sm"
+                    >
+                      <X size={16} />
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {filteredPersonnel.length === 0 && (
+          <div className="bg-gray-800 rounded-lg p-8 text-center text-gray-400">
+            No personnel found matching your filters.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
