@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Med Hold Accountability Tracker</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useMemo } = React;
+
+        // Icons as simple SVG components
+        const Search = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>;
+        const Plus = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+        const Edit2 = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>;
+        const Save = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>;
+        const X = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+        const Download = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
+        const Upload = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
+
+        function AccountabilityTracker() {
+          const [personnel, setPersonnel] = useState([
+            { id: 1, name: 'Sample Soldier', rank: 'SPC', hasJob: true, profile: 'Permanent - No Running', appointments: 'PT @ 0900 Mon', status: 'present', notes: '' }
+          ]);
+          
+          const [searchTerm, setSearchTerm] = useState('');
+          const [filterJob, setFilterJob] = useState('all');
+          const [filterStatus, setFilterStatus] = useState('all');
+          const [editingId, setEditingId] = useState(null);
+          const [editForm, setEditForm] = useState({});
+          const [showAddForm, setShowAddForm] = useState(false);
+          const [newPerson, setNewPerson] = useState({
+            name: '', rank: '', hasJob: false, profile: '', appointments: '', status: 'present', notes: ''
+          });
+
+          const filteredPersonnel = useMemo(() => {
+            return personnel.filter(p => {
+              const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                   p.rank.toLowerCase().includes(searchTerm.toLowerCase());
+              const matchesJob = filterJob === 'all' || 
+                                (filterJob === 'job' && p.hasJob) || 
+                                (filterJob === 'nojob' && !p.hasJob);
+              const matchesStatus = filterStatus === 'all' || p.status === filterStatus;
+              return matchesSearch && matchesJob && matchesStatus;
+            });
+          }, [personnel, searchTerm, filterJob, filterStatus]);
+
+          const handleEdit = (person) => {
+            setEditingId(person.id);
+            setEditForm({ ...person });
+          };
+
+          const handleSave = () => {
+            setPersonnel(personnel.map(p => p.id === editingId ? editForm : p));
+            setEditingId(null);
+          };
+
+          const handleAdd = () => {
+            const newId = Math.max(...personnel.map(p => p.id), 0) + 1;
+            setPersonnel([...personnel, { ...newPerson, id: newId }]);
+            setNewPerson({ name: '', rank: '', hasJob: false, profile: '', appointments: '', status: 'present', notes: '' });
+            setShowAddForm(false);
+          };
+
+          const handleDelete = (id) => {
+            if (confirm('Remove this person from the roster?')) {
+              setPersonnel(personnel.filter(p => p.id !== id));
+            }
+          };
+
+          const exportData = () => {
+            const dataStr = JSON.stringify(personnel, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `accountability_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+          };
+
+          const importData = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                try {
+                  const imported = JSON.parse(event.target.result);
+                  setPersonnel(imported);
+                  alert('Data imported successfully!');
+                } catch (err) {
+                  alert('Error importing file. Please make sure it\'s a valid JSON file.');
+                }
+              };
+              reader.readAsText(file);
+            }
+          };
+
+          const stats = {
+            total: personnel.length,
+            present: personnel.filter(p => p.status === 'present').length,
+            withJobs: personnel.filter(p => p.hasJob).length,
+            appointments: personnel.filter(p => p.appointments.trim()).length
+          };
+
+          return (
+            <div className="min-h-screen bg-gray-900 text-gray-100 p-4">
+              <div className="max-w-7xl mx-auto">
+                <div className="bg-gray-800 rounded-lg shadow-xl p-6 mb-6">
+                  <h1 className="text-3xl font-bold text-green-400 mb-2">Med Hold Accountability</h1>
+                  <p className="text-gray-400">Personnel Tracking System</p>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-400">{stats.total}</div>
+                    <div className="text-sm text-gray-400">Total Personnel</div>
+                  </div>
+                  <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-green-400">{stats.present}</div>
+                    <div className="text-sm text-gray-400">Present</div>
+                  </div>
+                  <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-yellow-400">{stats.withJobs}</div>
+                    <div className="text-sm text-gray-400">With Jobs</div>
+                  </div>
+                  <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-400">{stats.appointments}</div>
+                    <div className="text-sm text-gray-400">Appointments Today</div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-800 rounded-lg shadow-xl p-6 mb-6">
+                  <div className="flex flex-col md:flex-row gap-4 mb-4">
+                    <div className="flex-1 relative">
+                      <div className="absolute left-3 top-3 text-gray-400"><Search /></div>
+                      <input
+                        type="text"
+                        placeholder="Search by name or rank..."
+                        className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <select
+                      className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+                      value={filterJob}
+                      onChange={(e) => setFilterJob(e.target.value)}
+                    >
+                      <option value="all">All Jobs</option>
+                      <option value="job">Has Job</option>
+                      <option value="nojob">No Job</option>
+                    </select>
+                    <select
+                      className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                    >
+                      <option value="all">All Status</option>
+                      <option value="present">Present</option>
+                      <option value="appointment">At Appointment</option>
+                      <option value="leave">On Leave</option>
+                      <option value="absent">Absent</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <button
+                      onClick={() => setShowAddForm(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition"
+                    >
+                      <Plus />
+                      Add Person
+                    </button>
+                    <button
+                      onClick={exportData}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+                    >
+                      <Download />
+                      Export
+                    </button>
+                    <label className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition cursor-pointer">
+                      <Upload />
+                      Import
+                      <input type="file" accept=".json" onChange={importData} className="hidden" />
+                    </label>
+                  </div>
+
+                  {showAddForm && (
+                    <div className="bg-gray-700 p-4 rounded-lg mb-4 border border-green-500">
+                      <h3 className="text-lg font-bold mb-3 text-green-400">Add New Person</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input
+                          type="text"
+                          placeholder="Name"
+                          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                          value={newPerson.name}
+                          onChange={(e) => setNewPerson({ ...newPerson, name: e.target.value })}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Rank"
+                          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                          value={newPerson.rank}
+                          onChange={(e) => setNewPerson({ ...newPerson, rank: e.target.value })}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Profile (e.g., Temp - No Lifting)"
+                          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                          value={newPerson.profile}
+                          onChange={(e) => setNewPerson({ ...newPerson, profile: e.target.value })}
+                        />
+                        <input
+                          type="text"
+                          placeholder="Appointments (e.g., PT @ 1400)"
+                          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                          value={newPerson.appointments}
+                          onChange={(e) => setNewPerson({ ...newPerson, appointments: e.target.value })}
+                        />
+                        <select
+                          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                          value={newPerson.status}
+                          onChange={(e) => setNewPerson({ ...newPerson, status: e.target.value })}
+                        >
+                          <option value="present">Present</option>
+                          <option value="appointment">At Appointment</option>
+                          <option value="leave">On Leave</option>
+                          <option value="absent">Absent</option>
+                        </select>
+                        <label className="flex items-center gap-2 text-white">
+                          <input
+                            type="checkbox"
+                            checked={newPerson.hasJob}
+                            onChange={(e) => setNewPerson({ ...newPerson, hasJob: e.target.checked })}
+                            className="w-4 h-4"
+                          />
+                          Has Job
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Notes"
+                          className="px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white md:col-span-2"
+                          value={newPerson.notes}
+                          onChange={(e) => setNewPerson({ ...newPerson, notes: e.target.value })}
+                        />
+                      </div>
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={handleAdd}
+                          className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded transition"
+                        >
+                          Add
+                        </button>
+                        <button
+                          onClick={() => setShowAddForm(false)}
+                          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded transition"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  {filteredPersonnel.map(person => (
+                    <div key={person.id} className="bg-gray-800 rounded-lg p-4 shadow-lg">
+                      {editingId === person.id ? (
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <input
+                              type="text"
+                              className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                              value={editForm.name}
+                              onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                            />
+                            <input
+                              type="text"
+                              className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                              value={editForm.rank}
+                              onChange={(e) => setEditForm({ ...editForm, rank: e.target.value })}
+                            />
+                            <input
+                              type="text"
+                              placeholder="Profile"
+                              className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                              value={editForm.profile}
+                              onChange={(e) => setEditForm({ ...editForm, profile: e.target.value })}
+                            />
+                            <input
+                              type="text"
+                              placeholder="Appointments"
+                              className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                              value={editForm.appointments}
+                              onChange={(e) => setEditForm({ ...editForm, appointments: e.target.value })}
+                            />
+                            <select
+                              className="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                              value={editForm.status}
+                              onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                            >
+                              <option value="present">Present</option>
+                              <option value="appointment">At Appointment</option>
+                              <option value="leave">On Leave</option>
+                              <option value="absent">Absen
